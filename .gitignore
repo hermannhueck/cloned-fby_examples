@@ -1,38 +1,21 @@
+# directories
+target/
 
-project/boot
-target
-.ensime
-.ensime_lucene
-.ensime_cache
-.metals
-project/.bloop
-TAGS
-\#*#
-*~
-.#*
-.lib
-.history
-.*.swp
-.idea
-.idea/*
-.idea_modules
-.DS_Store
-.sbtrc
-*.sublime-project
-*.sublime-workspace
-tests.iml
+# hidden directories
+.idea/
+.vscode/
+.metals/
+.bloop/
+project/.bloop/
+
+# files
+*.class
 *.log
-.sass-cache/
-metastore_db/
-checkpoint/
-testData/
-.phantom-temp
+*.jar
+*.zip
+project/metals.sbt
 
-# PGP keys
-secring.asc
-
-# bazel
-result
-bazel-*
-!*.nix
-.bazel_cache
+# hidden files
+.history
+.dotty-ide-disabled
+.DS_Store
