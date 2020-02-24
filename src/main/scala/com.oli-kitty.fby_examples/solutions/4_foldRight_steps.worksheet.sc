@@ -6,7 +6,6 @@
   * Recursion: call self for the nested structure
   * Computation
   */
-  */
 def foldRight[A, E](op: Option[(E, A)] => A): List[E] => A = {
   new (List[E] => A) { kernel =>
     def apply(v1: List[E]): A =
