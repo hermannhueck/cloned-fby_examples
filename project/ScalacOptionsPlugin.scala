@@ -4,7 +4,7 @@ import sbt.Keys._
 object ScalacOptionsPlugin extends AutoPlugin {
 
   override def trigger: PluginTrigger = allRequirements
-  override def requires: Plugins      = plugins.JvmPlugin
+  override def requires: Plugins = plugins.JvmPlugin
 
   lazy val scalac211Options =
     taskKey[Seq[String]]("Options for the Scala 2.11 compiler.")
@@ -14,7 +14,9 @@ object ScalacOptionsPlugin extends AutoPlugin {
     taskKey[Seq[String]]("Options for the Scala 2.13 compiler.")
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
-    addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full),
+    addCompilerPlugin(
+      "org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full
+    ),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     scalac211Options := defaultScalac211Options,
     scalac212Options := defaultScalac212Options,
@@ -28,17 +30,21 @@ object ScalacOptionsPlugin extends AutoPlugin {
     scalacOptions in (Compile, doc) ~= (_.filterNot(scalacOptionsDocsFilter)),
     scalacOptions in (Compile, doc) += "-groups",
     scalacOptions in (Compile, console) ~= (_.filterNot(
-      scalacOptionsConsoleFilter)),
+      scalacOptionsConsoleFilter
+    )),
     scalacOptions in (Test, console) ~= (_.filterNot(
-      scalacOptionsConsoleFilter))
+      scalacOptionsConsoleFilter
+    ))
   )
 
   private[this] def defaultScalac213Options: List[String] =
     defaultScalac212Options.filterNot(
       Set(
         "-Yno-adapted-args",
-        "-Ypartial-unification"
-      )) ++ List(
+        "-Ypartial-unification",
+        "-Xfuture"
+      )
+    ) ++ List(
       "-Ymacro-annotations"
     )
 
@@ -53,7 +59,7 @@ object ScalacOptionsPlugin extends AutoPlugin {
       "-language:experimental.macros", // Allow macro definition (besides implementation and application)
       "-language:higherKinds", // Allow higher-kinded types
       "-language:implicitConversions", // Allow definition of implicit functions called views
-      "-unchecked",  // Enable additional warnings where generated code depends on assumptions.
+      "-unchecked", // Enable additional warnings where generated code depends on assumptions.
       "-Xcheckinit", // Wrap field accessors to throw an exception on uninitialized access.
       "-Xfuture", // Turn on future language features.
       "-Xlint:adapted-args", // Warn if an argument list is modified to match the receiver.
