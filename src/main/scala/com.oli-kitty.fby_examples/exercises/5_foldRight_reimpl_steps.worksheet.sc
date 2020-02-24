@@ -28,54 +28,62 @@ def product(i: Option[(Int, Int)]): Int = i match {
 
 // Provide signatures
 def foldRight[A, E](op: Option[(E, A)] => A): List[E] => A = {
-  new (List[E] => A) { kernel =>
-    def step1: ??? => ??? = ???
-    def step2: ??? => ??? = ???
-    def step3: ??? => ??? = ???
+  new (List[E] => A) { self =>
 
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
-      }
+    val step1: List[E] => Option[(E, List[E])] = ??? // unpack
+    val step2: Option[(E, List[E])] => Option[(E, A)] = ??? // recurse
+    val step3: Option[(E, A)] => A = ??? // compute
+
+    def apply(xs: List[E]): A = (step1 andThen step2 andThen step3)(xs)
   }
 }
-
-foldRight(product)(list)
 
 // implement  step3
 def foldRight2[A, E](op: Option[(E, A)] => A): List[E] => A = {
-  new (List[E] => A) { kernel =>
-    def step1: ??? => ??? = ???
-    def step2: ??? => ??? = ???
-    def step3: ??? => ??? = ???
+  new (List[E] => A) { self =>
 
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
-      }
+    val unpack: List[E] => Option[(E, List[E])] = ???
+    val recurse: Option[(E, List[E])] => Option[(E, A)] = ???
+    val compute: Option[(E, A)] => A = op
+
+    def apply(xs: List[E]): A = (unpack andThen recurse andThen compute)(xs)
   }
 }
-
-foldRight(product)(list)
-foldRight2(product)(list)
 
 // implement step1 & step2
 def foldRight3[A, E](op: Option[(E, A)] => A): List[E] => A = {
-  new (List[E] => A) { kernel =>
-    def step1: ??? => ??? = ???
-    def step2: ??? => ??? = ???
-    def step3: ??? => ??? = ???
+  new (List[E] => A) { self =>
 
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
-      }
+    val unpack: List[E] => Option[(E, List[E])] = {
+      case Nil          => None
+      case head :: tail => Some(head -> tail)
+    }
+    val recurse: Option[(E, List[E])] => Option[(E, A)] = {
+      case None               => None
+      case Some(head -> tail) => Some(head -> self(tail))
+    }
+    val compute: Option[(E, A)] => A = op
+
+    def apply(xs: List[E]): A = (unpack andThen recurse andThen compute)(xs)
   }
 }
 
-foldRight(product)(list)
-foldRight2(product)(list)
 foldRight3(product)(list)
+
+// introduce map and replace compute by op
+def foldRight4[A, E](op: Option[(E, A)] => A): List[E] => A = {
+  new (List[E] => A) { self =>
+
+    val unpack: List[E] => Option[(E, List[E])] = {
+      case Nil          => None
+      case head :: tail => Some(head -> tail)
+    }
+
+    val recurse: Option[(E, List[E])] => Option[(E, A)] =
+      opt => opt map { case head -> tail => head -> self(tail) }
+
+    def apply(xs: List[E]): A = (unpack andThen recurse andThen op)(xs)
+  }
+}
+
+foldRight4(product)(list)

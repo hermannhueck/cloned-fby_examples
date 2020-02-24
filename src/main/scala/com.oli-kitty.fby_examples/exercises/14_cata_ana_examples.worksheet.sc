@@ -1,7 +1,10 @@
-import cats._
-import cats.implicits._
+import cats.Functor
+import cats.instances.option._
+import cats.instances.tuple._
+import cats.syntax.functor._
 
 type ListF[A, B] = Option[(A, B)]
+
 implicit def functor[A]: Functor[ListF[A, ?]] = Functor[Option].compose[(A, ?)]
 
 type Algebra[F[_], A] = F[A] => A
@@ -52,14 +55,23 @@ val unsorted = 10 :: 80 :: 5 :: Nil
 
 // Insertion sort using Cata
 val insert: Algebra[ListF[Int, ?], List[Int]] = {
-  ???
+  case None => Nil
+  case Some((x, y)) => {
+    val parts = y.partition(_ <= x)
+    parts._1 ::: x :: parts._2
+  }
 }
 
 cata(insert)(projectListC).apply(unsorted)
 
 // Selection sort using Ana
 def select: Coalgebra[ListF[Int, ?], List[Int]] = {
-  ???
+  case Nil => None
+  case xs: List[Int] => {
+    import scala.math.Ordering._
+    val min = xs.min
+    Some((min, xs.diff(List(min))))
+  }
 }
 
 ana(select)(embedListA).apply(unsorted)

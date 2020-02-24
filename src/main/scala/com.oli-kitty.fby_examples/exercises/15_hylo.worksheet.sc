@@ -1,7 +1,10 @@
-import cats._
-import cats.implicits._
+import cats.Functor
+import cats.instances.option._
+import cats.instances.tuple._
+import cats.syntax.functor._
 
 type ListF[A, B] = Option[(A, B)]
+
 implicit def functor[A]: Functor[ListF[A, ?]] = Functor[Option].compose[(A, ?)]
 
 type Algebra[F[_], A] = F[A] => A
@@ -62,10 +65,33 @@ def hylo[F[_]: Functor, A, B](
     algebra: Algebra[F, B],
     coalgebra: Coalgebra[F, A]
 ): A => B = {
-  ???
+  new (A => B) { kernel =>
+    def apply(init: A): B =
+      algebra(coalgebra(init).fmap(kernel))
+  }
 }
-  // Implement factorial using hylo
-  ???
 
-  // Implement QuickSort using hylo
-  ???
+// Implement factorial using hylo
+hylo(productOpA, rangeOpC).apply(4)
+
+// Implement QuickSort using hylo
+
+type QuickF[A, B] = Option[(A, (B, B))]
+
+val conqueror: Algebra[QuickF[Int, ?], List[Int]] = {
+  case None         => Nil
+  case Some((x, y)) => y._1 ::: x :: y._2
+}
+
+val divide: Coalgebra[QuickF[Int, ?], List[Int]] =
+  _ match {
+    case Nil          => None
+    case head :: next => Some((head, next.partition(_ < head)))
+  }
+
+implicit def functor2[A]: Functor[λ[a => QuickF[A, a]]] =
+  new Functor[λ[a => QuickF[A, a]]] {
+    def map[B, C](fa: QuickF[A, B])(f: B => C) = fa.map(_.map(_.bimap(f, f)))
+  }
+
+hylo(conqueror, divide).apply(10 :: 6 :: 7 :: 2 :: Nil)

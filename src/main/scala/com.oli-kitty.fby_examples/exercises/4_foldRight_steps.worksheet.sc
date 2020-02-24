@@ -6,35 +6,43 @@
   * Recursion: call self for the nested structure
   * Computation
   */
+val list = 5 :: 4 :: 1 :: Nil
+val seed = 1
+def product(i: Option[(Int, Int)]): Int = i match {
+  case None         => seed
+  case Some((e, a)) => a * e
+}
 
 def foldRight[A, E](op: Option[(E, A)] => A): List[E] => A = {
-  new (List[E] => A) { kernel =>
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
+  new (List[E] => A) { self =>
+    def apply(xs: List[E]): A =
+      xs match {
+        case Nil          => op(None)
+        case head :: tail => op(Some((head, self(tail))))
       }
   }
 }
 
+foldRight(product)(list)
+
 // step 1: pattern match on list ~ unpack/project the data structure
 def foldRight1[A, E](op: Option[(E, A)] => A): List[E] => A = {
-  new (List[E] => A) { kernel =>
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
+  new (List[E] => A) { self =>
+    def apply(xs: List[E]): A =
+      xs match {
+        case Nil          => ???
+        case head :: tail => ???
       }
   }
 }
 
 // step 2: recursion
 def foldRight2[A, E](op: Option[(E, A)] => A): List[E] => A = {
-  new (List[E] => A) { kernel =>
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
+  new (List[E] => A) { self =>
+    def apply(xs: List[E]): A =
+      xs match {
+        case ??? => ???
+        case ??? => ??? self (???)
       }
   }
 }
@@ -42,10 +50,10 @@ def foldRight2[A, E](op: Option[(E, A)] => A): List[E] => A = {
 // step 3: computation
 def foldRight3[A, E](op: Option[(E, A)] => A): List[E] => A = {
   new (List[E] => A) { kernel =>
-    def apply(v1: List[E]): A =
-      v1 match {
-        case Nil        => op(None)
-        case head :: tl => op(Some((head, kernel(tl))))
+    def apply(xs: List[E]): A =
+      xs match {
+        case ??? => op(???)
+        case ??? => op(???)
       }
   }
 }
