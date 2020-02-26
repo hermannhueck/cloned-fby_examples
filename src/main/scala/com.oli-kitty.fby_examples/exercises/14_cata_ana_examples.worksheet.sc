@@ -13,17 +13,17 @@ type Coalgebra[F[_], A] = A => F[A]
 def cata[F[_]: Functor, S, B](
     algebra: Algebra[F, B]
 )(project: Coalgebra[F, S]): S => B =
-  new (S => B) { kernel =>
+  new (S => B) { self =>
     def apply(input: S): B =
-      algebra(project(input).fmap(kernel))
+      algebra(project(input).fmap(self))
   }
 
 def ana[F[_]: Functor, S, A](
     coalgebra: Coalgebra[F, A]
 )(embed: Algebra[F, S]): A => S =
-  new (A => S) { kernel =>
+  new (A => S) { self =>
     def apply(init: A): S =
-      embed(coalgebra(init).fmap(kernel))
+      embed(coalgebra(init).fmap(self))
   }
 
 def projectListC[A]: Coalgebra[ListF[A, ?], List[A]] = {
